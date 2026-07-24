@@ -51,14 +51,24 @@
     .signal {
       display: none;
       text-align: center;
-      padding: 20px;
+      padding: 24px 20px;
       border-radius: 16px;
       margin-top: 20px;
-      font-size: 20px;
-      font-weight: bold;
+      font-size: 18px;
+      line-height: 1.6;
     }
     .call { background: #065F46; }
     .put { background: #7F1D1D; }
+    .wait { background: #334155; }
+    .time-entry {
+      margin-top: 16px;
+      padding: 12px;
+      background: rgba(0,0,0,0.25);
+      border-radius: 12px;
+      font-size: 20px;
+      font-weight: bold;
+      color: #FBBF24;
+    }
   </style>
 </head>
 <body>
@@ -75,7 +85,7 @@
       <option value="AUD/USD">AUD/USD</option>
     </select>
 
-    <label style="margin-top:15px; display:block;">Таймфрейм</label>
+    <label style="margin-top:15px; display:block;">Експирація</label>
     <select id="time">
       <option value="1">1 хвилина</option>
       <option value="3">3 хвилини</option>
@@ -93,8 +103,21 @@
     window.Telegram.WebApp.setHeaderColor('#0B1120');
     window.Telegram.WebApp.setBackgroundColor('#0B1120');
 
+    function getEntryTime() {
+      // Додаємо 15 секунд на підготовку до входу
+      const now = new Date();
+      now.setSeconds(now.getSeconds() + 15);
+      
+      const hours = String(now.getHours()).padStart(2, '0');
+      const minutes = String(now.getMinutes()).padStart(2, '0');
+      const seconds = String(now.getSeconds()).padStart(2, '0');
+      
+      return `${hours}:${minutes}:${seconds}`;
+    }
+
     async function getSignal() {
       const pair = document.getElementById('pair').value;
+      const expiration = document.getElementById('time').value;
       const result = document.getElementById('result');
       
       result.style.display = 'block';
@@ -112,13 +135,25 @@
 
         const isCall = data.direction === 'CALL';
         const isPut = data.direction === 'PUT';
+        const isWait = data.direction === 'WAIT';
 
-        result.className = 'signal ' + (isCall ? 'call' : isPut ? 'put' : '');
+        const entryTime = getEntryTime();
+        const directionText = isWait ? 'ЧЕКАТИ' : (isCall ? 'CALL ↑' : 'PUT ↓');
+        const emoji = isCall ? '🟢' : isPut ? '🔴' : '⚪';
+
+        result.className = 'signal ' + (isCall ? 'call' : isPut ? 'put' : 'wait');
+        
         result.innerHTML = `
-          ${data.pair}<br>
-          ${data.direction === 'WAIT' ? 'ЧЕКАТИ' : data.direction + (isCall ? ' ↑' : ' ↓')}<br>
-          Впевненість: ${data.confidence}%<br>
-          RSI: ${data.rsi}
+          ${emoji} <b>СИГНАЛ</b><br><br>
+          Пара: <b>${data.pair}</b><br>
+          Напрямок: <b>${directionText}</b><br>
+          Експирація: <b>${expiration} хв</b><br>
+          Впевненість: <b>${data.confidence}%</b><br>
+          RSI: <b>${data.rsi}</b>
+          
+          <div class="time-entry">
+            ⏳ Час входу: ${entryTime}
+          </div>
         `;
       } catch (e) {
         result.innerHTML = 'Помилка з\'єднання';
