@@ -12,31 +12,58 @@
       color: white;
       font-family: -apple-system, BlinkMacSystemFont, sans-serif;
       min-height: 100vh;
-      padding: 20px;
+      padding: 14px;
+      padding-bottom: 50px;
     }
     .header {
       text-align: center;
-      margin-bottom: 30px;
+      margin-bottom: 16px;
+      position: relative;
     }
     .header h1 {
-      font-size: 28px;
+      font-size: 24px;
       background: linear-gradient(90deg, #3B82F6, #A855F7);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
+    .lang-switch {
+      position: absolute;
+      right: 0;
+      top: 0;
+      display: flex;
+      gap: 6px;
+    }
+    .lang-btn {
+      background: #334155;
+      border: none;
+      color: white;
+      padding: 5px 8px;
+      border-radius: 8px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+    .lang-btn.active {
+      background: #3B82F6;
+    }
     .card {
       background: #1E293B;
-      border-radius: 16px;
-      padding: 20px;
-      margin-bottom: 20px;
+      border-radius: 14px;
+      padding: 14px;
+      margin-bottom: 12px;
+    }
+    label {
+      font-size: 13px;
+      color: #94A3B8;
+      display: block;
+      margin-bottom: 3px;
     }
     select, button {
       width: 100%;
-      padding: 14px;
-      border-radius: 12px;
+      padding: 12px;
+      border-radius: 11px;
       border: none;
-      font-size: 16px;
-      margin-top: 10px;
+      font-size: 15px;
+      margin-top: 5px;
     }
     select {
       background: #334155;
@@ -45,120 +72,67 @@
     button {
       background: #3B82F6;
       color: white;
-      font-weight: bold;
-      margin-top: 20px;
+      font-weight: 600;
+      margin-top: 10px;
+    }
+    button.secondary {
+      background: #475569;
+    }
+    button.success {
+      background: #059669;
+    }
+    button.pocket {
+      background: #F97316;
+      margin-top: 8px;
     }
     .signal {
       display: none;
       text-align: center;
-      padding: 24px 20px;
-      border-radius: 16px;
-      margin-top: 20px;
-      font-size: 18px;
-      line-height: 1.6;
+      padding: 18px 14px;
+      border-radius: 14px;
+      margin-top: 10px;
+      font-size: 16px;
+      line-height: 1.5;
     }
     .call { background: #065F46; }
     .put { background: #7F1D1D; }
     .wait { background: #334155; }
     .time-entry {
-      margin-top: 16px;
-      padding: 12px;
-      background: rgba(0,0,0,0.25);
-      border-radius: 12px;
+      margin-top: 12px;
+      padding: 11px;
+      background: rgba(0,0,0,0.3);
+      border-radius: 11px;
       font-size: 20px;
       font-weight: bold;
       color: #FBBF24;
     }
-  </style>
-</head>
-<body>
-  <div class="header">
-    <h1>SIGNAL AI</h1>
-  </div>
-
-  <div class="card">
-    <label>Валютна пара</label>
-    <select id="pair">
-      <option value="EUR/USD">EUR/USD</option>
-      <option value="GBP/USD">GBP/USD</option>
-      <option value="USD/JPY">USD/JPY</option>
-      <option value="AUD/USD">AUD/USD</option>
-    </select>
-
-    <label style="margin-top:15px; display:block;">Експирація</label>
-    <select id="time">
-      <option value="1">1 хвилина</option>
-      <option value="3">3 хвилини</option>
-      <option value="5">5 хвилин</option>
-    </select>
-
-    <button onclick="getSignal()">Отримати сигнал</button>
-  </div>
-
-  <div id="result" class="signal"></div>
-
-  <script>
-    window.Telegram.WebApp.ready();
-    window.Telegram.WebApp.expand();
-    window.Telegram.WebApp.setHeaderColor('#0B1120');
-    window.Telegram.WebApp.setBackgroundColor('#0B1120');
-
-    function getEntryTime() {
-      // Додаємо 15 секунд на підготовку до входу
-      const now = new Date();
-      now.setSeconds(now.getSeconds() + 15);
-      
-      const hours = String(now.getHours()).padStart(2, '0');
-      const minutes = String(now.getMinutes()).padStart(2, '0');
-      const seconds = String(now.getSeconds()).padStart(2, '0');
-      
-      return `${hours}:${minutes}:${seconds}`;
+    .countdown {
+      font-size: 14px;
+      color: #FCD34D;
+      margin-top: 4px;
     }
-
-    async function getSignal() {
-      const pair = document.getElementById('pair').value;
-      const expiration = document.getElementById('time').value;
-      const result = document.getElementById('result');
-      
-      result.style.display = 'block';
-      result.className = 'signal';
-      result.innerHTML = 'Завантаження...';
-
-      try {
-        const response = await fetch(`https://signal-ai-backend-production.up.railway.app/signal?pair=${pair}`);
-        const data = await response.json();
-
-        if (data.error) {
-          result.innerHTML = 'Помилка отримання даних';
-          return;
-        }
-
-        const isCall = data.direction === 'CALL';
-        const isPut = data.direction === 'PUT';
-        const isWait = data.direction === 'WAIT';
-
-        const entryTime = getEntryTime();
-        const directionText = isWait ? 'ЧЕКАТИ' : (isCall ? 'CALL ↑' : 'PUT ↓');
-        const emoji = isCall ? '🟢' : isPut ? '🔴' : '⚪';
-
-        result.className = 'signal ' + (isCall ? 'call' : isPut ? 'put' : 'wait');
-        
-        result.innerHTML = `
-          ${emoji} <b>СИГНАЛ</b><br><br>
-          Пара: <b>${data.pair}</b><br>
-          Напрямок: <b>${directionText}</b><br>
-          Експирація: <b>${expiration} хв</b><br>
-          Впевненість: <b>${data.confidence}%</b><br>
-          RSI: <b>${data.rsi}</b>
-          
-          <div class="time-entry">
-            ⏳ Час входу: ${entryTime}
-          </div>
-        `;
-      } catch (e) {
-        result.innerHTML = 'Помилка з\'єднання';
-      }
+    .stats {
+      display: flex;
+      justify-content: space-around;
+      text-align: center;
+      font-size: 13px;
+      margin-top: 6px;
     }
-  </script>
-</body>
-</html>
+    .stats div b {
+      display: block;
+      font-size: 17px;
+      margin-top: 2px;
+    }
+    .history {
+      max-height: 160px;
+      overflow-y: auto;
+      font-size: 12px;
+    }
+    .history-item {
+      padding: 7px 0;
+      border-bottom: 1px solid #334155;
+      display: flex;
+      justify-content: space-between;
+    }
+    .row {
+​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​
