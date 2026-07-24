@@ -161,6 +161,12 @@
       color: #C4B5FD;
       margin: 4px 0;
     }
+    #pairHint {
+      font-size: 12px;
+      color: #94A3B8;
+      margin-top: 6px;
+      line-height: 1.4;
+    }
   </style>
 </head>
 <body>
@@ -182,11 +188,15 @@
           <option value="GBP/USD">GBP/USD</option>
           <option value="USD/JPY">USD/JPY</option>
           <option value="AUD/USD">AUD/USD</option>
-          <option value="EUR/GBP">EUR/GBP</option>
           <option value="USD/CAD">USD/CAD</option>
           <option value="USD/CHF">USD/CHF</option>
           <option value="NZD/USD">NZD/USD</option>
+          <option value="EUR/GBP">EUR/GBP</option>
+          <option value="EUR/JPY">EUR/JPY</option>
+          <option value="GBP/JPY">GBP/JPY</option>
+          <option value="AUD/JPY">AUD/JPY</option>
         </select>
+        <div id="pairHint">⚠️ Сигнали працюють найкраще на звичайних парах (без OTC)</div>
       </div>
       <div>
         <label id="labelExp">Експирація</label>
@@ -262,9 +272,11 @@
         error: "Помилка отримання даних",
         connection: "Помилка з'єднання",
         wait: "ЧЕКАТИ",
+        buy: "КУПИТИ ↑",
+        sell: "ПРОДАТИ ↓",
         signal: "СИГНАЛ",
         direction: "Напрямок",
-        confidence: "Впевненість",
+        confidence: "Ймовірність",
         entry: "Час входу",
         left: "Залишилось",
         now: "ЧАС ВХОДУ!",
@@ -273,7 +285,8 @@
         noHistory: "Поки немає сигналів",
         promo: "Реферальний промокод",
         copyPromo: "Скопіювати промокод",
-        min: "хв"
+        min: "хв",
+        pairHint: "⚠️ Сигнали працюють найкраще на звичайних парах (без OTC)"
       },
       en: {
         pair: "Currency pair",
@@ -290,9 +303,11 @@
         error: "Failed to get data",
         connection: "Connection error",
         wait: "WAIT",
+        buy: "BUY ↑",
+        sell: "SELL ↓",
         signal: "SIGNAL",
         direction: "Direction",
-        confidence: "Confidence",
+        confidence: "Probability",
         entry: "Entry time",
         left: "Left",
         now: "ENTRY TIME!",
@@ -301,7 +316,8 @@
         noHistory: "No signals yet",
         promo: "Referral promo code",
         copyPromo: "Copy promo code",
-        min: "min"
+        min: "min",
+        pairHint: "⚠️ Signals work best on regular pairs (without OTC)"
       },
       fr: {
         pair: "Paire de devises",
@@ -318,9 +334,11 @@
         error: "Erreur de données",
         connection: "Erreur de connexion",
         wait: "ATTENDRE",
+        buy: "ACHETER ↑",
+        sell: "VENDRE ↓",
         signal: "SIGNAL",
         direction: "Direction",
-        confidence: "Confiance",
+        confidence: "Probabilité",
         entry: "Heure d'entrée",
         left: "Reste",
         now: "HEURE D'ENTRÉE !",
@@ -329,7 +347,8 @@
         noHistory: "Pas encore de signaux",
         promo: "Code promo de parrainage",
         copyPromo: "Copier le code promo",
-        min: "min"
+        min: "min",
+        pairHint: "⚠️ Les signaux fonctionnent mieux sur les paires normales (sans OTC)"
       }
     };
 
@@ -337,7 +356,6 @@
       const t = translations[currentLang];
       const min = t.min;
 
-      // Експирація
       const timeSelect = document.getElementById('time');
       const timeValues = [1, 2, 3, 5, 10];
       const currentTime = timeSelect.value;
@@ -345,7 +363,6 @@
         `<option value="${v}" ${v == currentTime ? 'selected' : ''}>${v} ${min}</option>`
       ).join('');
 
-      // Підготовка до входу
       const delaySelect = document.getElementById('delay');
       const delayValues = [
         {value: 60, text: 1},
@@ -376,6 +393,7 @@
       document.getElementById('labelHistory').innerText = t.history;
       document.getElementById('promoLabel').innerText = t.promo;
       document.querySelector('.copy-promo').innerText = t.copyPromo;
+      document.getElementById('pairHint').innerText = t.pairHint;
 
       updateSelects();
       renderHistory();
@@ -479,7 +497,12 @@
 
         const entryDate = getEntryTime(delay);
         const entryTimeStr = formatTime(entryDate);
-        const directionText = isWait ? t.wait : (isCall ? 'CALL ↑' : 'PUT ↓');
+
+        let directionText;
+        if (isWait) directionText = t.wait;
+        else if (isCall) directionText = t.buy;
+        else directionText = t.sell;
+
         const emoji = isCall ? '🟢' : isPut ? '🔴' : '⚪';
 
         result.className = 'signal ' + (isCall ? 'call' : isPut ? 'put' : 'wait');
@@ -512,7 +535,7 @@
         if (!isWait) {
           try { tg.HapticFeedback.impactOccurred('medium'); } catch(e) {}
           saveStats(data.direction);
-          addToHistory(data.pair, data.direction, data.confidence, entryTimeStr);
+          addToHistory(data.pair, directionText, data.confidence, entryTimeStr);
         }
 
       } catch (e) {
@@ -567,7 +590,6 @@
       }
     }
 
-    // Запуск
     updateSelects();
     renderStats();
     renderHistory();
