@@ -1,3 +1,21 @@
+Добре, робимо все зараз **без особистої рефералки** (поставимо звичайне посилання). Пізніше просто замінимо.
+
+Ось повністю готова нова версія `index.html` з:
+
+- 3 мовами: Українська / English / Français
+- Експирація 1 і 1.5 хв
+- Час входу + зворотний відлік
+- Вибір затримки
+- Статистика
+- Історія
+- Авто-сигнал
+- Копіювання сигналу
+- Кнопка «Відкрити Pocket Option»
+- Більше пар
+
+Просто **повністю заміни** код у файлі `index.html`:
+
+```html
 <!DOCTYPE html>
 <html lang="uk">
 <head>
@@ -476,4 +494,27 @@
       });
     }
 
-​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​
+    function toggleAuto() {
+      const btn = document.getElementById('autoBtn');
+      const t = translations[currentLang];
+      if (autoInterval) {
+        clearInterval(autoInterval);
+        autoInterval = null;
+        btn.innerText = t.autoOff;
+        btn.classList.remove('auto-active');
+      } else {
+        getSignal();
+        autoInterval = setInterval(getSignal, 45000);
+        btn.innerText = t.autoOn;
+        btn.classList.add('auto-active');
+      }
+    }
+
+    renderStats();
+    renderHistory();
+  </script>
+</body>
+</html>
+```
+
+Заміни код → Commit changes → напиши «готово».
