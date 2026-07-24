@@ -272,7 +272,8 @@
         copied: "Скопійовано",
         noHistory: "Поки немає сигналів",
         promo: "Реферальний промокод",
-        copyPromo: "Скопіювати промокод"
+        copyPromo: "Скопіювати промокод",
+        min: "хв"
       },
       en: {
         pair: "Currency pair",
@@ -299,7 +300,8 @@
         copied: "Copied",
         noHistory: "No signals yet",
         promo: "Referral promo code",
-        copyPromo: "Copy promo code"
+        copyPromo: "Copy promo code",
+        min: "min"
       },
       fr: {
         pair: "Paire de devises",
@@ -326,9 +328,36 @@
         copied: "Copié",
         noHistory: "Pas encore de signaux",
         promo: "Code promo de parrainage",
-        copyPromo: "Copier le code promo"
+        copyPromo: "Copier le code promo",
+        min: "min"
       }
     };
+
+    function updateSelects() {
+      const t = translations[currentLang];
+      const min = t.min;
+
+      // Експирація
+      const timeSelect = document.getElementById('time');
+      const timeValues = [1, 2, 3, 5, 10];
+      const currentTime = timeSelect.value;
+      timeSelect.innerHTML = timeValues.map(v => 
+        `<option value="${v}" ${v == currentTime ? 'selected' : ''}>${v} ${min}</option>`
+      ).join('');
+
+      // Підготовка до входу
+      const delaySelect = document.getElementById('delay');
+      const delayValues = [
+        {value: 60, text: 1},
+        {value: 120, text: 2},
+        {value: 180, text: 3},
+        {value: 300, text: 5}
+      ];
+      const currentDelay = delaySelect.value;
+      delaySelect.innerHTML = delayValues.map(d => 
+        `<option value="${d.value}" ${d.value == currentDelay ? 'selected' : ''}>${d.text} ${min}</option>`
+      ).join('');
+    }
 
     function setLang(lang) {
       currentLang = lang;
@@ -347,6 +376,8 @@
       document.getElementById('labelHistory').innerText = t.history;
       document.getElementById('promoLabel').innerText = t.promo;
       document.querySelector('.copy-promo').innerText = t.copyPromo;
+
+      updateSelects();
       renderHistory();
     }
 
@@ -457,7 +488,7 @@
           ${emoji} <b>${t.signal}</b><br><br>
           ${t.pair}: <b>${data.pair}</b><br>
           ${t.direction}: <b>${directionText}</b><br>
-          ${t.exp}: <b>${expiration} хв</b><br>
+          ${t.exp}: <b>${expiration} ${t.min}</b><br>
           ${t.confidence}: <b>${data.confidence}%</b><br>
           RSI: <b>${data.rsi}</b>
           <div class="time-entry">
@@ -514,7 +545,7 @@
       if (!window.lastSignal) return;
       const s = window.lastSignal;
       const t = translations[currentLang];
-      const text = `${t.signal}\n${s.pair}\n${s.direction}\n${t.exp}: ${s.expiration}\n${t.entry}: ${s.entryTime}\n${t.confidence}: ${s.confidence}%\nRSI: ${s.rsi}`;
+      const text = `${t.signal}\n${s.pair}\n${s.direction}\n${t.exp}: ${s.expiration} ${t.min}\n${t.entry}: ${s.entryTime}\n${t.confidence}: ${s.confidence}%\nRSI: ${s.rsi}`;
       navigator.clipboard.writeText(text).then(() => {
         tg.showPopup({ title: t.copied, message: t.copied, buttons: [{type: 'ok'}] });
       });
@@ -536,6 +567,8 @@
       }
     }
 
+    // Запуск
+    updateSelects();
     renderStats();
     renderHistory();
   </script>
