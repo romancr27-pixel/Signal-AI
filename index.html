@@ -1,6 +1,3 @@
-Ось **тільки чистий код**. Копіюй все від першого рядка до останнього:
-
-```html
 <!DOCTYPE html>
 <html lang="uk">
 <head>
@@ -195,17 +192,20 @@
         <label id="labelExp">Експирація</label>
         <select id="time">
           <option value="1">1 хв</option>
-          <option value="1.5">1.5 хв</option>
+          <option value="2">2 хв</option>
+          <option value="3">3 хв</option>
+          <option value="5">5 хв</option>
+          <option value="10">10 хв</option>
         </select>
       </div>
     </div>
 
-    <label id="labelDelay" style="margin-top:10px">Затримка входу</label>
+    <label id="labelDelay" style="margin-top:10px">Підготовка до входу</label>
     <select id="delay">
-      <option value="10">10 сек</option>
-      <option value="15" selected>15 сек</option>
-      <option value="20">20 сек</option>
-      <option value="30">30 сек</option>
+      <option value="60">1 хв</option>
+      <option value="120" selected>2 хв</option>
+      <option value="180">3 хв</option>
+      <option value="300">5 хв</option>
     </select>
 
     <button id="btnGet" onclick="getSignal()">Отримати сигнал</button>
@@ -250,7 +250,7 @@
       uk: {
         pair: "Валютна пара",
         exp: "Експирація",
-        delay: "Затримка входу",
+        delay: "Підготовка до входу",
         get: "Отримати сигнал",
         autoOff: "Авто-сигнал: ВИМК",
         autoOn: "Авто-сигнал: ВКЛ",
@@ -277,7 +277,7 @@
       en: {
         pair: "Currency pair",
         exp: "Expiration",
-        delay: "Entry delay",
+        delay: "Entry preparation",
         get: "Get signal",
         autoOff: "Auto-signal: OFF",
         autoOn: "Auto-signal: ON",
@@ -304,7 +304,7 @@
       fr: {
         pair: "Paire de devises",
         exp: "Expiration",
-        delay: "Délai d'entrée",
+        delay: "Préparation à l'entrée",
         get: "Obtenir le signal",
         autoOff: "Auto-signal: OFF",
         autoOn: "Auto-signal: ON",
@@ -503,7 +503,9 @@
           clearInterval(countdownInterval);
           try { tg.HapticFeedback.notificationOccurred('success'); } catch(e) {}
         } else {
-          el.innerText = `${t.left}: ${diff} сек`;
+          const mins = Math.floor(diff / 60);
+          const secs = diff % 60;
+          el.innerText = `${t.left}: ${mins}:${secs.toString().padStart(2, '0')}`;
         }
       }, 200);
     }
