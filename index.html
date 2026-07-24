@@ -1,21 +1,3 @@
-Добре, робимо все зараз **без особистої рефералки** (поставимо звичайне посилання). Пізніше просто замінимо.
-
-Ось повністю готова нова версія `index.html` з:
-
-- 3 мовами: Українська / English / Français
-- Експирація 1 і 1.5 хв
-- Час входу + зворотний відлік
-- Вибір затримки
-- Статистика
-- Історія
-- Авто-сигнал
-- Копіювання сигналу
-- Кнопка «Відкрити Pocket Option»
-- Більше пар
-
-Просто **повністю заміни** код у файлі `index.html`:
-
-```html
 <!DOCTYPE html>
 <html lang="uk">
 <head>
@@ -103,6 +85,11 @@
       background: #F97316;
       margin-top: 8px;
     }
+    button.copy-promo {
+      background: #7C3AED;
+      margin-top: 6px;
+      font-size: 14px;
+    }
     .signal {
       display: none;
       text-align: center;
@@ -160,6 +147,20 @@
     .auto-active {
       background: #059669 !important;
     }
+    .promo-box {
+      margin-top: 10px;
+      padding: 10px;
+      background: #312E81;
+      border-radius: 10px;
+      text-align: center;
+      font-size: 14px;
+    }
+    .promo-code {
+      font-size: 18px;
+      font-weight: bold;
+      color: #C4B5FD;
+      margin: 4px 0;
+    }
   </style>
 </head>
 <body>
@@ -207,6 +208,12 @@
     <button id="btnGet" onclick="getSignal()">Отримати сигнал</button>
     <button id="autoBtn" class="secondary" onclick="toggleAuto()">Авто-сигнал: ВИМК</button>
     <button class="pocket" onclick="openPocket()">Відкрити Pocket Option</button>
+
+    <div class="promo-box">
+      <div id="promoLabel">Реферальний промокод</div>
+      <div class="promo-code">FRIENDPG0AWNI40G</div>
+      <button class="copy-promo" onclick="copyPromo()">Скопіювати промокод</button>
+    </div>
   </div>
 
   <div id="result" class="signal"></div>
@@ -260,7 +267,9 @@
         now: "ЧАС ВХОДУ!",
         copy: "Скопіювати сигнал",
         copied: "Скопійовано",
-        noHistory: "Поки немає сигналів"
+        noHistory: "Поки немає сигналів",
+        promo: "Реферальний промокод",
+        copyPromo: "Скопіювати промокод"
       },
       en: {
         pair: "Currency pair",
@@ -285,7 +294,9 @@
         now: "ENTRY TIME!",
         copy: "Copy signal",
         copied: "Copied",
-        noHistory: "No signals yet"
+        noHistory: "No signals yet",
+        promo: "Referral promo code",
+        copyPromo: "Copy promo code"
       },
       fr: {
         pair: "Paire de devises",
@@ -310,7 +321,9 @@
         now: "HEURE D'ENTRÉE !",
         copy: "Copier le signal",
         copied: "Copié",
-        noHistory: "Pas encore de signaux"
+        noHistory: "Pas encore de signaux",
+        promo: "Code promo de parrainage",
+        copyPromo: "Copier le code promo"
       }
     };
 
@@ -329,12 +342,20 @@
       document.getElementById('labelStats').innerText = t.stats;
       document.getElementById('labelTotal').innerHTML = t.total + '<br><b id="statTotal">' + document.getElementById('statTotal').innerText + '</b>';
       document.getElementById('labelHistory').innerText = t.history;
+      document.getElementById('promoLabel').innerText = t.promo;
+      document.querySelector('.copy-promo').innerText = t.copyPromo;
       renderHistory();
     }
 
     function openPocket() {
-      // Пізніше замінимо на твоє реферальне посилання
-      window.open('https://pocketoption.com', '_blank');
+      window.open('https://pocket-friends.co/r/pg0awni40g', '_blank');
+    }
+
+    function copyPromo() {
+      navigator.clipboard.writeText('FRIENDPG0AWNI40G').then(() => {
+        const t = translations[currentLang];
+        tg.showPopup({ title: t.copied, message: 'FRIENDPG0AWNI40G', buttons: [{type: 'ok'}] });
+      });
     }
 
     function loadStats() {
@@ -515,6 +536,3 @@
   </script>
 </body>
 </html>
-```
-
-Заміни код → Commit changes → напиши «готово».
